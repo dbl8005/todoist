@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todoist/models/todo_model.dart';
 import 'package:todoist/providers/todo_list_provider.dart';
+import 'package:todoist/utils/dialogs/confirm_dialog.dart';
+import 'package:todoist/utils/dialogs/info_dialog.dart';
 
 class TodoTileWidget extends ConsumerWidget {
   const TodoTileWidget({
@@ -34,27 +36,23 @@ class TodoTileWidget extends ConsumerWidget {
             // button to expand the card and show the description
             IconButton(
                 onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text(todo.title),
-                      content: Text(todo.description),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('Close'),
-                        ),
-                      ],
-                    ),
-                  );
+                  showInfoDialog(
+                      context: context,
+                      title: todo.title,
+                      description: todo.description);
                 },
                 icon: const Icon(Icons.expand_more_rounded)),
             IconButton(
               icon: const Icon(Icons.delete),
               onPressed: () {
-                ref.read(todoListProvider.notifier).removeTodo(todo.id);
+                showConfirmDialog(
+                        context: context,
+                        content: 'Are you sure you want to delete this todo?')
+                    .then((value) => value!
+                        ? ref
+                            .read(todoListProvider.notifier)
+                            .removeTodo(todo.id)
+                        : null);
               },
             ),
           ],
