@@ -1,17 +1,29 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:todoist/databases/todo_db.dart';
 import 'package:todoist/models/todo_model.dart';
 import 'package:uuid/uuid.dart';
 
 final uuid = Uuid();
 
 final todoListProvider = StateNotifierProvider<TodoNotifier, List<TodoModel>>(
-  (ref) => TodoNotifier([]),
+  (ref) {
+    return TodoNotifier();
+  },
 );
 
 class TodoNotifier extends StateNotifier<List<TodoModel>> {
-  TodoNotifier(super.state);
+  TodoNotifier() : super([]) {
+    loadTodos();
+  }
 
-  void addTodo(String title, String description) {
+  final _db = TodoDatabase.instance;
+
+  Future<void> loadTodos() async {
+    final todos = await _db.getTodos();
+    state = todos;
+  }
+
+  Future<void> addTodo(String title, String description) async {
     final newTodo = TodoModel(
       id: uuid.v4(),
       title: title,
@@ -20,24 +32,28 @@ class TodoNotifier extends StateNotifier<List<TodoModel>> {
     );
     state = [...state, newTodo];
 
+    await _db.insertTodo(newTodo);
+
     sortTodosByCompletion();
   }
 
-  void removeTodo(String id) {
+  Future<void> removeTodo(String id) async {
     state = state.where((element) => element.id != id).toList();
 
+    await _db.deleteTodo(id);
+
     sortTodosByCompletion();
   }
 
-  void toggleTodo(String id) {
-    state = state.map((element) {
-      if (element.id == id) {
-        return element.copyWith(isCompleted: !element.isCompleted);
+  Future<void> toggleTodo(String id) async {
+    state = state.map((todo) {
+      if (todo.id == id) {
+        final updatedTodo = todo.copyWith(isCompleted: !todo.isCompleted);
+        _db.updateTodo(updatedTodo);
+        return updatedTodo;
       }
-      return element;
+      return todo;
     }).toList();
-
-    sortTodosByCompletion();
   }
 
   void sortTodosByCompletion() {

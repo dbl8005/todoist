@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todoist/views/todo_view.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(ProviderScope(child: MyApp()));
 }
 

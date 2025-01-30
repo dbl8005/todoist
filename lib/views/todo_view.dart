@@ -16,6 +16,7 @@ class _TodoViewState extends ConsumerState<TodoView> {
   @override
   Widget build(BuildContext context) {
     final todoList = ref.watch(todoListProvider);
+    final todoListNotifier = ref.watch(todoListProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
@@ -37,13 +38,15 @@ class _TodoViewState extends ConsumerState<TodoView> {
         padding: const EdgeInsets.symmetric(
           horizontal: 8,
         ),
-        child: ListView.builder(
-          itemCount: todoList.length,
-          itemBuilder: (context, index) {
-            final todo = todoList[index];
-            return TodoTileWidget(todo: todo);
-          },
-        ),
+        child: todoList.isEmpty
+            ? const Center(
+                child: Text('No todos yet', style: TextStyle(fontSize: 20)))
+            : ListView.builder(
+                itemCount: todoList.length,
+                itemBuilder: (context, index) => TodoTileWidget(
+                  todo: todoList[index],
+                ),
+              ),
       ),
     );
   }

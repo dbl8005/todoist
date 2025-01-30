@@ -23,4 +23,22 @@ class TodoModel {
       isCompleted: isCompleted ?? this.isCompleted,
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'id': id,
+      'title': title,
+      'description': description,
+      'isCompleted': isCompleted ? 1 : 0,
+    };
+  }
+
+  factory TodoModel.fromMap(Map<String, dynamic> map) {
+    return TodoModel(
+      id: map['id'] as String,
+      title: map['title'] as String,
+      description: map['description'] as String,
+      isCompleted: map['isCompleted'] == 1 ? true : false,
+    );
+  }
 }
