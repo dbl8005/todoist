@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todoist/models/todo_model.dart';
 import 'package:todoist/providers/todo_list_provider.dart';
+import 'package:todoist/services/todo_service.dart';
 import 'package:todoist/utils/dialogs/confirm_dialog.dart';
 import 'package:todoist/utils/dialogs/info_dialog.dart';
 
@@ -15,13 +16,14 @@ class TodoTileWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final todoService = TodoService(ref);
     return Card(
       color: todo.isCompleted ? Colors.lightGreen : Theme.of(context).cardColor,
       child: ListTile(
         leading: Checkbox(
           value: todo.isCompleted,
           onChanged: (value) {
-            ref.read(todoListProvider.notifier).toggleTodo(todo.id);
+            todoService.toggleTodo(todo.id);
           },
         ),
         title: Text(todo.title),
@@ -35,25 +37,12 @@ class TodoTileWidget extends ConsumerWidget {
           children: [
             // button to expand the card and show the description
             IconButton(
-                onPressed: () {
-                  showInfoDialog(
-                      context: context,
-                      title: todo.title,
-                      description: todo.description);
-                },
+                onPressed: () =>
+                    todoService.showInfo(context: context, todo: todo),
                 icon: const Icon(Icons.expand_more_rounded)),
             IconButton(
               icon: const Icon(Icons.delete),
-              onPressed: () {
-                showConfirmDialog(
-                        context: context,
-                        content: 'Are you sure you want to delete this todo?')
-                    .then((value) => value!
-                        ? ref
-                            .read(todoListProvider.notifier)
-                            .removeTodo(todo.id)
-                        : null);
-              },
+              onPressed: () => todoService.removeTodo(context, todo.id),
             ),
           ],
         ),

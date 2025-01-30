@@ -3,12 +3,14 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todoist/providers/todo_list_provider.dart';
+import 'package:todoist/services/todo_service.dart';
 
 class NewTodoView extends ConsumerWidget {
   const NewTodoView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final todoService = TodoService(ref);
     // Text Controllers
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
@@ -46,9 +48,10 @@ class NewTodoView extends ConsumerWidget {
                 print("empty");
                 return;
               }
-              ref
-                  .read(todoListProvider.notifier)
-                  .addTodo(titleController.text, descriptionController.text);
+              todoService.addTodo(
+                titleController.text,
+                descriptionController.text,
+              );
               print(titleController.text + descriptionController.text);
               titleController.clear();
               descriptionController.clear();
