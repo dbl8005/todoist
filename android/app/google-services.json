@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "464870451279",
+    "project_id": "todoist-5ac20",
+    "storage_bucket": "todoist-5ac20.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464870451279:android:f7c2171db22d512f27223a",
+        "android_client_info": {
+          "package_name": "com.example.todoist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCq73fWjvCrgX19t_YQyFN-ElQohQL5JCo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
