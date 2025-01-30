@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todoist/models/todo_model.dart';
 import 'package:todoist/providers/todo_list_provider.dart';
-import 'package:todoist/utils/dialogs/confirm_dialog.dart';
-import 'package:todoist/utils/dialogs/info_dialog.dart';
+import 'package:todoist/utils/helpers/dialogs/confirm_dialog.dart';
+import 'package:todoist/utils/helpers/dialogs/info_dialog.dart';
 
 class TodoService {
   final WidgetRef ref;
