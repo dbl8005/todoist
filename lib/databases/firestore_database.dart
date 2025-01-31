@@ -37,7 +37,7 @@ class FirestoreDatabase {
     });
   }
 
-  Stream<List<Subtask>> getSubtasks(String todoId) {
+  Stream<List<Subtask>> getSubtasks(String todoId) async* {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw FirebaseAuthException(
@@ -45,15 +45,27 @@ class FirestoreDatabase {
     }
     final userId = user.uid;
 
-    return firestore
+    final todoDocRef = firestore
         .collection(FirestoreConstants.userCollection)
         .doc(userId)
         .collection(FirestoreConstants.todosCollection)
-        .doc(todoId)
-        .collection(FirestoreConstants.subtasksCollection)
-        .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Subtask.fromMap(doc.data())).toList());
+        .doc(todoId);
+
+    final todoDocSnapshot = await todoDocRef.get();
+    if (!todoDocSnapshot.exists) {
+      throw Exception('Todo not found.');
+    }
+
+    final subtasksCollectionRef =
+        todoDocRef.collection(FirestoreConstants.subtasksCollection);
+
+    yield* subtasksCollectionRef.snapshots().map((snapshot) {
+      if (snapshot.docs.isEmpty) {
+        return <Subtask>[];
+      }
+
+      return snapshot.docs.map((doc) => Subtask.fromMap(doc.data())).toList();
+    });
   }
 
   Future<void> addTodo(

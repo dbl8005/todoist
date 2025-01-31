@@ -13,6 +13,8 @@ class NewTodoView extends ConsumerStatefulWidget {
 }
 
 class _NewTodoViewState extends ConsumerState<NewTodoView> {
+  // variables
+  bool isLoading = false;
   // Text Controllers
   List<TextEditingController> subtaskControllers = [];
   final titleController = TextEditingController();
@@ -57,6 +59,9 @@ class _NewTodoViewState extends ConsumerState<NewTodoView> {
         );
         return;
       }
+      setState(() {
+        isLoading = true;
+      });
       // turn subtasks into list of subtasks
       List<Subtask> subtasks = subtaskControllers
           .where((controller) => controller.text.isNotEmpty)
@@ -69,7 +74,7 @@ class _NewTodoViewState extends ConsumerState<NewTodoView> {
           )
           .toList();
       // add todo from service
-      todoService.addTodo(
+      await todoService.addTodo(
         titleController.text,
         descriptionController.text,
         subtasks,
@@ -81,6 +86,10 @@ class _NewTodoViewState extends ConsumerState<NewTodoView> {
       titleController.clear();
       descriptionController.clear();
       subtaskControllers.forEach((controller) => controller.clear());
+
+      setState(() {
+        isLoading = false;
+      });
 
       Navigator.pop(context);
     }
@@ -140,8 +149,12 @@ class _NewTodoViewState extends ConsumerState<NewTodoView> {
 
           // submit button
           ElevatedButton(
-            onPressed: () => submit(context),
-            child: Text('Submit'),
+            onPressed: isLoading
+                ? null
+                : () {
+                    submit(context);
+                  },
+            child: isLoading ? CircularProgressIndicator() : Text('Submit'),
           ),
         ]),
       ),
