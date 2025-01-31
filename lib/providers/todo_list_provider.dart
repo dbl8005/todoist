@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:todoist/databases/todo_db.dart';
+import 'package:todoist/databases/todo_local_database.dart';
 import 'package:todoist/models/todo_model.dart';
 import 'package:uuid/uuid.dart';
 
@@ -16,7 +16,7 @@ class TodoNotifier extends StateNotifier<List<TodoModel>> {
     loadTodos();
   }
 
-  final _db = TodoDatabase.instance;
+  final _db = TodoLocalDatabase.instance;
 
   Future<void> loadTodos() async {
     final todos = await _db.getTodos();

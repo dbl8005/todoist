@@ -1,7 +1,13 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
+
+import 'package:todoist/models/subtask_model.dart';
+
 class TodoModel {
   final String id;
   final String title;
   final String description;
+  final List<Subtask> subtasks = [];
   final bool isCompleted;
   TodoModel({
     required this.id,
@@ -29,7 +35,7 @@ class TodoModel {
       'id': id,
       'title': title,
       'description': description,
-      'isCompleted': isCompleted ? 1 : 0,
+      'isCompleted': isCompleted,
     };
   }
 
@@ -38,7 +44,35 @@ class TodoModel {
       id: map['id'] as String,
       title: map['title'] as String,
       description: map['description'] as String,
-      isCompleted: map['isCompleted'] == 1 ? true : false,
+      isCompleted: map['isCompleted'] as bool,
     );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory TodoModel.fromJson(String source) =>
+      TodoModel.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() {
+    return 'TodoModel(id: $id, title: $title, description: $description, isCompleted: $isCompleted)';
+  }
+
+  @override
+  bool operator ==(covariant TodoModel other) {
+    if (identical(this, other)) return true;
+
+    return other.id == id &&
+        other.title == title &&
+        other.description == description &&
+        other.isCompleted == isCompleted;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^
+        title.hashCode ^
+        description.hashCode ^
+        isCompleted.hashCode;
   }
 }

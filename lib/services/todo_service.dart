@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:todoist/databases/firestore_database.dart';
+import 'package:todoist/models/subtask_model.dart';
 import 'package:todoist/models/todo_model.dart';
 import 'package:todoist/providers/todo_list_provider.dart';
 import 'package:todoist/utils/helpers/dialogs/confirm_dialog.dart';
@@ -21,8 +23,11 @@ class TodoService {
             value! ? ref.read(todoListProvider.notifier).removeTodo(id) : null);
   }
 
-  void addTodo(String title, String description) =>
-      ref.read(todoListProvider.notifier).addTodo(title, description);
+  Future<void> addTodo(
+      String title, String description, List<Subtask> subtasks) async {
+    await ref.read(todoListProvider.notifier).addTodo(title, description);
+    await FirestoreDatabase().addTodo(title, description, subtasks);
+  }
 
   Future<void> showInfo({
     required BuildContext context,

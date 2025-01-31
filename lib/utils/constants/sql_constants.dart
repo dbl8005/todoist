@@ -6,6 +6,7 @@ class SqlConstants {
   static const String titleColumn = 'title';
   static const String descriptionColumn = 'description';
   static const String isCompletedColumn = 'isCompleted';
+  static const String subtasksColumn = 'subtasks';
 
   static const String createTodoTable = '''
     CREATE TABLE $todoTable (

@@ -3,11 +3,11 @@ import 'package:sqflite/sqflite.dart';
 import 'package:todoist/models/todo_model.dart';
 import 'package:todoist/utils/constants/sql_constants.dart';
 
-class TodoDatabase {
+class TodoLocalDatabase {
   static Database? _db;
-  static final TodoDatabase instance = TodoDatabase._init();
+  static final TodoLocalDatabase instance = TodoLocalDatabase._init();
 
-  TodoDatabase._init();
+  TodoLocalDatabase._init();
 
   Future<Database> get db async {
     if (_db == null) {
