@@ -52,6 +52,12 @@ class _TodoViewState extends ConsumerState<TodoView> {
               );
             }
             final todos = snapshot.data ?? [];
+            todos.sort((a, b) {
+              if (a.isCompleted == b.isCompleted) {
+                return 0;
+              }
+              return a.isCompleted ? 1 : -1;
+            });
 
             return ListView.builder(
               itemCount: todos.length,
