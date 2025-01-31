@@ -17,15 +17,43 @@ class FirestoreDatabase {
           code: 'user-not-signed-in', message: 'User is not signed in.');
     }
     final userId = user.uid;
-    final todos = firestore
+
+    return firestore
         .collection(FirestoreConstants.userCollection)
         .doc(userId)
         .collection(FirestoreConstants.todosCollection)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => TodoModel.fromMap(doc.data())).toList());
+        .asyncMap((snapshot) async {
+      return Future.wait(snapshot.docs.map((doc) async {
+        final subtasksSnapshot = await doc.reference
+            .collection(FirestoreConstants.subtasksCollection)
+            .get();
+        final subtasks = subtasksSnapshot.docs
+            .map((subtaskDoc) => Subtask.fromMap(subtaskDoc.data()))
+            .toList();
 
-    return todos;
+        return TodoModel.fromMap(doc.data()).copyWith(subtasks: subtasks);
+      }));
+    });
+  }
+
+  Stream<List<Subtask>> getSubtasks(String todoId) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw FirebaseAuthException(
+          code: 'user-not-signed-in', message: 'User is not signed in.');
+    }
+    final userId = user.uid;
+
+    return firestore
+        .collection(FirestoreConstants.userCollection)
+        .doc(userId)
+        .collection(FirestoreConstants.todosCollection)
+        .doc(todoId)
+        .collection(FirestoreConstants.subtasksCollection)
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => Subtask.fromMap(doc.data())).toList());
   }
 
   Future<void> addTodo(
@@ -64,6 +92,7 @@ class FirestoreDatabase {
           FirestoreConstants.titleColumn: subtask.title,
           FirestoreConstants.isCompletedColumn: subtask.isCompleted,
         });
+
         // Update subtask ID
         await subtaskRef.update({FirestoreConstants.idColumn: subtaskRef.id});
       }
@@ -126,6 +155,64 @@ class FirestoreDatabase {
       print('FirebaseAuthException: ${e.message}');
     } on FirebaseException catch (e) {
       print('FirebaseException: ${e.message}');
+    } catch (e) {
+      print('Exception: $e');
+    }
+  }
+
+  Future<void> toggleSubtask(String todoId, String subtaskId) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw FirebaseAuthException(
+            code: 'user-not-signed-in', message: 'User is not signed in.');
+      }
+      final userId = user.uid;
+
+      // Reference to the subtask document
+      final subtaskRef = firestore
+          .collection(FirestoreConstants.userCollection)
+          .doc(userId)
+          .collection(FirestoreConstants.todosCollection)
+          .doc(todoId)
+          .collection(FirestoreConstants.subtasksCollection)
+          .doc(subtaskId);
+
+      // Fetch current subtask data
+      final subtaskDoc = await subtaskRef.get();
+
+      if (!subtaskDoc.exists) {
+        print("Subtask not found.");
+        return;
+      }
+
+      final bool currentStatus =
+          (subtaskDoc.data()?[FirestoreConstants.isCompletedColumn] ?? false)
+              as bool;
+
+      // Toggle the isCompleted status
+      await subtaskRef.update({
+        FirestoreConstants.isCompletedColumn: !currentStatus,
+      });
+    } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException: ${e.message}');
+    } on FirebaseException catch (e) {
+      print('FirebaseException: ${e.message}');
+    } catch (e) {
+      print('Exception: $e');
+    }
+  }
+
+  removeSubtask(String todoId, String subtaskId) {
+    try {
+      firestore
+          .collection(FirestoreConstants.userCollection)
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .collection(FirestoreConstants.todosCollection)
+          .doc(todoId)
+          .collection(FirestoreConstants.subtasksCollection)
+          .doc(subtaskId)
+          .delete();
     } catch (e) {
       print('Exception: $e');
     }

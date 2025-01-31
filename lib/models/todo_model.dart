@@ -2,18 +2,21 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+
 import 'package:todoist/models/subtask_model.dart';
 
 class TodoModel {
   final String id;
   final String title;
   final String description;
-  final List<Subtask> subtasks = [];
+  final List<Subtask> subtasks;
   final bool isCompleted;
   TodoModel({
     required this.id,
     required this.title,
     required this.description,
+    required this.subtasks,
     required this.isCompleted,
   });
 
@@ -21,12 +24,14 @@ class TodoModel {
     String? id,
     String? title,
     String? description,
+    List<Subtask>? subtasks,
     bool? isCompleted,
   }) {
     return TodoModel(
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
+      subtasks: subtasks ?? this.subtasks,
       isCompleted: isCompleted ?? this.isCompleted,
     );
   }
@@ -36,6 +41,7 @@ class TodoModel {
       'id': id,
       'title': title,
       'description': description,
+      'subtasks': subtasks.map((x) => x.toMap()).toList(),
       'isCompleted': isCompleted,
     };
   }
@@ -45,12 +51,16 @@ class TodoModel {
       id: map['id'] as String,
       title: map['title'] as String,
       description: map['description'] as String,
+      subtasks: map['subtasks'] != null
+          ? List<Subtask>.from(
+              (map['subtasks'] as List<dynamic>).map<Subtask>(
+                (x) => Subtask.fromMap(x as Map<String, dynamic>),
+              ),
+            )
+          : [], // ✅ Default to empty list if subtasks is null
       isCompleted: map['isCompleted'] as bool,
     );
   }
-
-  factory TodoModel.fromSnapshot(DocumentSnapshot snapshot) =>
-      TodoModel.fromMap(snapshot.data() as Map<String, dynamic>);
 
   String toJson() => json.encode(toMap());
 
@@ -59,7 +69,7 @@ class TodoModel {
 
   @override
   String toString() {
-    return 'TodoModel(id: $id, title: $title, description: $description, isCompleted: $isCompleted)';
+    return 'TodoModel(id: $id, title: $title, description: $description, subtasks: $subtasks, isCompleted: $isCompleted)';
   }
 
   @override
@@ -69,6 +79,7 @@ class TodoModel {
     return other.id == id &&
         other.title == title &&
         other.description == description &&
+        listEquals(other.subtasks, subtasks) &&
         other.isCompleted == isCompleted;
   }
 
@@ -77,6 +88,7 @@ class TodoModel {
     return id.hashCode ^
         title.hashCode ^
         description.hashCode ^
+        subtasks.hashCode ^
         isCompleted.hashCode;
   }
 }

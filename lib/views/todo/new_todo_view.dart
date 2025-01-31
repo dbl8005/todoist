@@ -28,7 +28,7 @@ class _NewTodoViewState extends ConsumerState<NewTodoView> {
 
   @override
   Widget build(BuildContext context) {
-    final todoService = TodoService(ref);
+    final todoService = TodoService();
 
     // functions
     void addSubtask() {

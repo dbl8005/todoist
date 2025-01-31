@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todoist/databases/firestore_database.dart';
 import 'package:todoist/models/todo_model.dart';
 import 'package:todoist/services/auth_service.dart';
+import 'package:todoist/services/todo_service.dart';
 import 'package:todoist/views/todo/new_todo_view.dart';
-import 'package:todoist/views/widgets/todo_tile_widget.dart';
+import 'package:expansion_tile_list/expansion_tile_list.dart';
+import 'package:todoist/views/todo/widgets/todo_tile_widget.dart';
 
 class TodoView extends ConsumerStatefulWidget {
   const TodoView({super.key});
@@ -59,8 +61,9 @@ class _TodoViewState extends ConsumerState<TodoView> {
               return a.isCompleted ? 1 : -1;
             });
 
-            return ListView.builder(
+            return ListView.separated(
               itemCount: todos.length,
+              separatorBuilder: (context, index) => const Divider(),
               itemBuilder: (context, index) {
                 final todo = todos[index];
                 return TodoTileWidget(todo: todo);

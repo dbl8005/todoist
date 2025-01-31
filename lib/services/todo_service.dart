@@ -7,9 +7,7 @@ import 'package:todoist/utils/helpers/dialogs/confirm_dialog.dart';
 import 'package:todoist/utils/helpers/dialogs/info_dialog.dart';
 
 class TodoService {
-  final WidgetRef ref;
-
-  TodoService(this.ref);
+  TodoService();
 
   FirestoreDatabase firestoreDb = FirestoreDatabase();
 
@@ -45,5 +43,16 @@ class TodoService {
     );
   }
 
-  final todoServiceProvider = Provider((ref) => TodoService(ref as WidgetRef));
+  Future<void> toggleSubtask(String todoId, String subtaskId) async {
+    await firestoreDb.toggleSubtask(todoId, subtaskId);
+  }
+
+  Stream<List<TodoModel>> getTodos() => firestoreDb.getTodos();
+
+  Stream<List<Subtask>> getSubtasks(String todoId) =>
+      firestoreDb.getSubtasks(todoId);
+
+  Future<void> removeSubtask(String todoId, String subtaskId) async {
+    await firestoreDb.removeSubtask(todoId, subtaskId);
+  }
 }

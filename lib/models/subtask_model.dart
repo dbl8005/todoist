@@ -4,6 +4,7 @@ class Subtask {
   final String id;
   final String title;
   final bool isCompleted;
+
   Subtask({
     required this.id,
     required this.title,
@@ -23,7 +24,7 @@ class Subtask {
   }
 
   Map<String, dynamic> toMap() {
-    return <String, dynamic>{
+    return {
       'id': id,
       'title': title,
       'isCompleted': isCompleted,
@@ -32,9 +33,9 @@ class Subtask {
 
   factory Subtask.fromMap(Map<String, dynamic> map) {
     return Subtask(
-      id: map['id'] as String,
-      title: map['title'] as String,
-      isCompleted: map['isCompleted'] as bool,
+      id: map['id'] as String? ?? '', // ✅ Prevents null values
+      title: map['title'] as String? ?? '',
+      isCompleted: map['isCompleted'] as bool? ?? false, // ✅ Ensures a boolean
     );
   }
 
@@ -50,7 +51,6 @@ class Subtask {
   @override
   bool operator ==(covariant Subtask other) {
     if (identical(this, other)) return true;
-
     return other.id == id &&
         other.title == title &&
         other.isCompleted == isCompleted;
