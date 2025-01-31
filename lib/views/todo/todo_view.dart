@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:todoist/databases/firestore_database.dart';
 import 'package:todoist/models/todo_model.dart';
-import 'package:todoist/providers/todo_list_provider.dart';
 import 'package:todoist/services/auth_service.dart';
 import 'package:todoist/views/todo/new_todo_view.dart';
 import 'package:todoist/views/widgets/todo_tile_widget.dart';
@@ -16,8 +16,6 @@ class TodoView extends ConsumerStatefulWidget {
 class _TodoViewState extends ConsumerState<TodoView> {
   @override
   Widget build(BuildContext context) {
-    final todoList = ref.watch(todoListProvider);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Todoist'),
@@ -45,11 +43,24 @@ class _TodoViewState extends ConsumerState<TodoView> {
         padding: const EdgeInsets.symmetric(
           horizontal: 8,
         ),
-        child: ListView.builder(
-          itemCount: todoList.length,
-          itemBuilder: (context, index) => TodoTileWidget(
-            todo: todoList[index],
-          ),
+        child: StreamBuilder(
+          stream: FirestoreDatabase().getTodos(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            final todos = snapshot.data ?? [];
+
+            return ListView.builder(
+              itemCount: todos.length,
+              itemBuilder: (context, index) {
+                final todo = todos[index];
+                return TodoTileWidget(todo: todo);
+              },
+            );
+          },
         ),
       ),
     );

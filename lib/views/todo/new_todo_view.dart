@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todoist/models/subtask_model.dart';
-import 'package:todoist/providers/todo_list_provider.dart';
 import 'package:todoist/services/todo_service.dart';
 import 'package:todoist/utils/helpers/snackbars/warning_snackbar.dart';
 

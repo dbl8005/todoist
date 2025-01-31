@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:todoist/models/subtask_model.dart';
 
 class TodoModel {
@@ -47,6 +48,9 @@ class TodoModel {
       isCompleted: map['isCompleted'] as bool,
     );
   }
+
+  factory TodoModel.fromSnapshot(DocumentSnapshot snapshot) =>
+      TodoModel.fromMap(snapshot.data() as Map<String, dynamic>);
 
   String toJson() => json.encode(toMap());
 

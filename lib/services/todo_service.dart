@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todoist/databases/firestore_database.dart';
 import 'package:todoist/models/subtask_model.dart';
 import 'package:todoist/models/todo_model.dart';
-import 'package:todoist/providers/todo_list_provider.dart';
 import 'package:todoist/utils/helpers/dialogs/confirm_dialog.dart';
 import 'package:todoist/utils/helpers/dialogs/info_dialog.dart';
 
@@ -12,21 +11,27 @@ class TodoService {
 
   TodoService(this.ref);
 
-  void toggleTodo(String id) =>
-      ref.read(todoListProvider.notifier).toggleTodo(id);
+  FirestoreDatabase firestoreDb = FirestoreDatabase();
 
-  void removeTodo(BuildContext context, String id) async {
+  Future<void> toggleTodo(String id) => firestoreDb.toggleTodo(id);
+
+  Future<void> removeTodo(BuildContext context, String id) async {
     await showConfirmDialog(
             context: context,
             content: 'Are you sure you want to delete this todo?')
-        .then((value) =>
-            value! ? ref.read(todoListProvider.notifier).removeTodo(id) : null);
+        .then(
+      (value) async {
+        if (value ?? false) {
+          await firestoreDb.deleteTodo(id);
+        }
+        return;
+      },
+    );
   }
 
   Future<void> addTodo(
       String title, String description, List<Subtask> subtasks) async {
-    await ref.read(todoListProvider.notifier).addTodo(title, description);
-    await FirestoreDatabase().addTodo(title, description, subtasks);
+    await firestoreDb.addTodo(title, description, subtasks);
   }
 
   Future<void> showInfo({

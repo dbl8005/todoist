@@ -9,6 +9,25 @@ class FirestoreDatabase {
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+  // get all todos for current user
+  Stream<List<TodoModel>> getTodos() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw FirebaseAuthException(
+          code: 'user-not-signed-in', message: 'User is not signed in.');
+    }
+    final userId = user.uid;
+    final todos = firestore
+        .collection(FirestoreConstants.userCollection)
+        .doc(userId)
+        .collection(FirestoreConstants.todosCollection)
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => TodoModel.fromMap(doc.data())).toList());
+
+    return todos;
+  }
+
   Future<void> addTodo(
       String title, String description, List<Subtask> subtasks) async {
     try {
@@ -48,6 +67,61 @@ class FirestoreDatabase {
         // Update subtask ID
         await subtaskRef.update({FirestoreConstants.idColumn: subtaskRef.id});
       }
+    } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException: ${e.message}');
+    } on FirebaseException catch (e) {
+      print('FirebaseException: ${e.message}');
+    } catch (e) {
+      print('Exception: $e');
+    }
+  }
+
+  Future<void> deleteTodo(String todoId) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw FirebaseAuthException(
+            code: 'user-not-signed-in', message: 'User is not signed in.');
+      }
+      final userId = user.uid;
+
+      // reference individual user collection todos
+      CollectionReference userTodosRef = firestore
+          .collection(FirestoreConstants.userCollection)
+          .doc(userId)
+          .collection(FirestoreConstants.todosCollection);
+
+      await userTodosRef.doc(todoId).delete();
+    } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException: ${e.message}');
+    } on FirebaseException catch (e) {
+      print('FirebaseException: ${e.message}');
+    } catch (e) {
+      print('Exception: $e');
+    }
+  }
+
+  Future<void> toggleTodo(String todoId) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw FirebaseAuthException(
+            code: 'user-not-signed-in', message: 'User is not signed in.');
+      }
+      final userId = user.uid;
+
+      // reference individual user collection todos
+      CollectionReference userTodosRef = firestore
+          .collection(FirestoreConstants.userCollection)
+          .doc(userId)
+          .collection(FirestoreConstants.todosCollection);
+
+      await userTodosRef.doc(todoId).update({
+        FirestoreConstants.isCompletedColumn: !(await userTodosRef
+            .doc(todoId)
+            .get()
+            .then((doc) => doc[FirestoreConstants.isCompletedColumn]))
+      });
     } on FirebaseAuthException catch (e) {
       print('FirebaseAuthException: ${e.message}');
     } on FirebaseException catch (e) {
