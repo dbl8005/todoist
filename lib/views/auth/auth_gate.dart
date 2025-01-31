@@ -3,7 +3,6 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
 import 'package:todoist/utils/secret/secret_constants.dart';
-import 'package:todoist/views/auth/sign_in_view.dart';
 import 'package:todoist/views/todo/todo_view.dart';
 
 class AuthGate extends StatelessWidget {
@@ -13,7 +12,7 @@ class AuthGate extends StatelessWidget {
   Widget build(BuildContext context) {
     FirebaseUIAuth.configureProviders([
       EmailAuthProvider(),
-      GoogleProvider(clientId: SecretConstants.googleClientId),
+      GoogleProvider(clientId: SecretConstants().googleClientId),
     ]);
     return StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
