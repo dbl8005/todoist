@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todoist/models/todo_model.dart';
 import 'package:todoist/providers/todo_list_provider.dart';
+import 'package:todoist/services/auth_service.dart';
 import 'package:todoist/views/todo/new_todo_view.dart';
 import 'package:todoist/views/widgets/todo_tile_widget.dart';
 
@@ -21,6 +22,13 @@ class _TodoViewState extends ConsumerState<TodoView> {
       appBar: AppBar(
         title: const Text('Todoist'),
         actions: [
+          // log out
+          IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () async {
+                await AuthService().signOut();
+              }),
+          // button to add a new todo
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {

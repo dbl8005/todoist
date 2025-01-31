@@ -6,14 +6,6 @@ class SignInView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-            onPressed: () async {
-              await AuthService().signInWithGoogle();
-            },
-            child: const Text('Sign in with Google')),
-      ),
-    );
+    return Scaffold(body: Placeholder());
   }
 }
