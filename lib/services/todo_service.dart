@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todoist/databases/firestore_database.dart';
-import 'package:todoist/models/subtask_model.dart';
-import 'package:todoist/models/todo_model.dart';
+import 'package:todoist/features/todo/data/models/subtask_model.dart';
+import 'package:todoist/features/todo/data/models/todo_model.dart';
 import 'package:todoist/utils/helpers/dialogs/confirm_dialog.dart';
 import 'package:todoist/utils/helpers/dialogs/info_dialog.dart';
 
@@ -28,7 +27,7 @@ class TodoService {
   }
 
   Future<void> addTodo(
-      String title, String description, List<Subtask> subtasks) async {
+      String title, String description, List<SubtaskModel> subtasks) async {
     await firestoreDb.addTodo(title, description, subtasks);
   }
 
@@ -49,7 +48,7 @@ class TodoService {
 
   Stream<List<TodoModel>> getTodos() => firestoreDb.getTodos();
 
-  Stream<List<Subtask>> getSubtasks(String todoId) =>
+  Stream<List<SubtaskModel>> getSubtasks(String todoId) =>
       firestoreDb.getSubtasks(todoId);
 
   Future<void> removeSubtask(String todoId, String subtaskId) async {

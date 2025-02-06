@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:todoist/models/subtask_model.dart';
-import 'package:todoist/models/todo_model.dart';
+import 'package:todoist/features/todo/data/models/subtask_model.dart';
+import 'package:todoist/features/todo/data/models/todo_model.dart';
 import 'package:todoist/utils/constants/firestore_constants.dart';
 
 class FirestoreDatabase {
@@ -29,15 +29,16 @@ class FirestoreDatabase {
             .collection(FirestoreConstants.subtasksCollection)
             .get();
         final subtasks = subtasksSnapshot.docs
-            .map((subtaskDoc) => Subtask.fromMap(subtaskDoc.data()))
+            .map((subtaskDoc) => SubtaskModel.fromMap(subtaskDoc.data()))
             .toList();
 
-        return TodoModel.fromMap(doc.data()).copyWith(subtasks: subtasks);
+        return TodoModel.fromMap(doc.data(), doc.id)
+            .copyWith(subtasks: subtasks);
       }));
     });
   }
 
-  Stream<List<Subtask>> getSubtasks(String todoId) {
+  Stream<List<SubtaskModel>> getSubtasks(String todoId) {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw FirebaseAuthException(
@@ -56,17 +57,17 @@ class FirestoreDatabase {
         .snapshots()
         .map((snapshot) {
       if (snapshot.docs.isEmpty) {
-        return <Subtask>[];
+        return <SubtaskModel>[];
       }
 
       return snapshot.docs
-          .map((doc) => Subtask.fromMap(doc.data() ?? <String, dynamic>{}))
+          .map((doc) => SubtaskModel.fromMap(doc.data() ?? <String, dynamic>{}))
           .toList();
     });
   }
 
   Future<void> addTodo(
-      String title, String description, List<Subtask> subtasks) async {
+      String title, String description, List<SubtaskModel> subtasks) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
@@ -93,7 +94,7 @@ class FirestoreDatabase {
       await taskRef.update({FirestoreConstants.idColumn: taskRef.id});
 
       // Add subtasks for this task
-      for (Subtask subtask in subtasks) {
+      for (SubtaskModel subtask in subtasks) {
         DocumentReference subtaskRef = await taskRef
             .collection(FirestoreConstants.subtasksCollection)
             .add({
