@@ -28,50 +28,47 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         title: const Text('Login'),
       ),
-      body: Scaffold(
-        appBar: AppBar(title: const Text('Login')),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  validator: (value) =>
-                      value?.isEmpty ?? true ? 'Email is required' : null,
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Email is required' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _passwordController,
+                decoration: const InputDecoration(labelText: 'Password'),
+                obscureText: true,
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Password is required' : null,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _signIn,
+                child: const Text('Sign In'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SignUpPage()),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  obscureText: true,
-                  validator: (value) =>
-                      value?.isEmpty ?? true ? 'Password is required' : null,
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _signIn,
-                  child: const Text('Sign In'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SignUpPage()),
-                  ),
-                  child: const Text('Create Account'),
-                ),
-                const Divider(),
-                ElevatedButton.icon(
-                  onPressed: () =>
-                      context.read<AuthBloc>().add(SignInWithGoogle()),
-                  icon: const Icon(Icons.g_mobiledata),
-                  label: const Text('Sign in with Google'),
-                ),
-              ],
-            ),
+                child: const Text('Create Account'),
+              ),
+              const Divider(),
+              ElevatedButton.icon(
+                onPressed: () =>
+                    context.read<AuthBloc>().add(SignInWithGoogle()),
+                icon: const Icon(Icons.g_mobiledata),
+                label: const Text('Sign in with Google'),
+              ),
+            ],
           ),
         ),
       ),

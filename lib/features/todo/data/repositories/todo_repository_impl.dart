@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:todoist/features/todo/data/models/subtask_model.dart';
 import 'package:todoist/features/todo/data/models/todo_model.dart';
 import 'package:todoist/features/todo/domain/entities/todo_entity.dart';
+import 'package:todoist/features/todo/domain/exceptions/todo_exceptions.dart';
 import 'package:todoist/features/todo/domain/repositories/todo_repository.dart';
 
 class TodoRepositoryImpl implements TodoRepository {
@@ -17,7 +18,7 @@ class TodoRepositoryImpl implements TodoRepository {
 
   CollectionReference<Map<String, dynamic>> _getTodosCollection() {
     final userId = _auth.currentUser?.uid;
-    if (userId == null) throw UnauthorizedException();
+    if (userId == null) throw UnauthorizedTodoException();
     return _firestore
         .collection(usersCollection)
         .doc(userId)
@@ -124,9 +125,3 @@ class TodoRepositoryImpl implements TodoRepository {
     );
   }
 }
-
-class UnauthorizedException implements Exception {}
-
-class TodoNotFoundException implements Exception {}
-
-class SubtaskNotFoundException implements Exception {}

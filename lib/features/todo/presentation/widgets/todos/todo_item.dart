@@ -78,31 +78,36 @@ class _TodoItemState extends State<TodoItem> {
                   ),
                 ),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: currentTodo.subtasks.length,
-                    itemBuilder: (context, index) {
-                      final sortedSubtasks = [...currentTodo.subtasks]..sort(
-                          (a, b) => a.isCompleted == b.isCompleted
-                              ? 0
-                              : a.isCompleted
-                                  ? 1
-                                  : -1,
-                        );
-                      final subtask = sortedSubtasks[index];
-                      return CheckboxListTile(
-                        value: subtask.isCompleted,
-                        title: Text(
-                          subtask.title,
-                        ),
-                        onChanged: (_) => context.read<TodoBloc>().add(
-                              ToggleSubtask(
-                                todoId: currentTodo.id,
-                                subtaskId: subtask.id,
+                  child: currentTodo.subtasks.length == 0
+                      ? Center(
+                          child: Text('No subtasks yet'),
+                        )
+                      : ListView.builder(
+                          itemCount: currentTodo.subtasks.length,
+                          itemBuilder: (context, index) {
+                            final sortedSubtasks = [...currentTodo.subtasks]
+                              ..sort(
+                                (a, b) => a.isCompleted == b.isCompleted
+                                    ? 0
+                                    : a.isCompleted
+                                        ? 1
+                                        : -1,
+                              );
+                            final subtask = sortedSubtasks[index];
+                            return CheckboxListTile(
+                              value: subtask.isCompleted,
+                              title: Text(
+                                subtask.title,
                               ),
-                            ),
-                      );
-                    },
-                  ),
+                              onChanged: (_) => context.read<TodoBloc>().add(
+                                    ToggleSubtask(
+                                      todoId: currentTodo.id,
+                                      subtaskId: subtask.id,
+                                    ),
+                                  ),
+                            );
+                          },
+                        ),
                 ),
               ],
             );

@@ -4,6 +4,7 @@ import 'package:todoist/features/todo/data/models/subtask_model.dart';
 import 'package:todoist/features/todo/data/models/todo_model.dart';
 import 'package:todoist/features/todo/data/repositories/todo_repository_impl.dart';
 import 'package:todoist/features/todo/domain/entities/todo_entity.dart';
+import 'package:todoist/features/todo/domain/exceptions/todo_exceptions.dart';
 import 'package:todoist/features/todo/domain/repositories/todo_repository.dart';
 
 part 'todo_event.dart';
@@ -28,31 +29,31 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
       _repository.getTodos(),
       onData: (List<TodoEntity> todos) => TodoLoaded(todos: todos),
       onError: (error, stackTrace) =>
-          TodoError(message: _mapErrorToMessage(error)),
+          TodoError(message: 'Failed to load todos'),
     );
   }
 
   Future<void> _onAddTodo(AddTodo event, Emitter<TodoState> emit) async {
     try {
       await _repository.addTodo(event.todo);
-    } catch (e) {
-      emit(TodoError(message: _mapErrorToMessage(e)));
+    } on TodoException catch (e) {
+      emit(TodoError(message: e.message));
     }
   }
 
   Future<void> _onDeleteTodo(DeleteTodo event, Emitter<TodoState> emit) async {
     try {
       await _repository.deleteTodo(event.id);
-    } catch (e) {
-      emit(TodoError(message: _mapErrorToMessage(e)));
+    } on TodoException catch (e) {
+      emit(TodoError(message: e.message));
     }
   }
 
   Future<void> _onToggleTodo(ToggleTodo event, Emitter<TodoState> emit) async {
     try {
       await _repository.toggleTodo(event.id);
-    } catch (e) {
-      emit(TodoError(message: _mapErrorToMessage(e)));
+    } on TodoException catch (e) {
+      emit(TodoError(message: e.message));
     }
   }
 
@@ -85,20 +86,14 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
         // Perform actual update
         await _repository.toggleSubtask(event.todoId, event.subtaskId);
       }
-    } catch (e) {
+    } on TodoException catch (e) {
       // On error, revert to original state by reloading
       emit(TodoLoading());
       await emit.forEach(
         _repository.getTodos(),
         onData: (todos) => TodoLoaded(todos: todos),
       );
-      emit(TodoError(message: _mapErrorToMessage(e)));
+      emit(TodoError(message: e.message));
     }
-  }
-
-  String _mapErrorToMessage(Object error) {
-    if (error is UnauthorizedException) return 'Please sign in to continue';
-    if (error is TodoNotFoundException) return 'Todo not found';
-    return 'An error occured.';
   }
 }

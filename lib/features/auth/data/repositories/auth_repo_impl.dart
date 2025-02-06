@@ -42,9 +42,12 @@ class AuthRepoImpl implements AuthRepository {
     return _auth.currentUser != null;
   }
 
-  @override
   Future<void> signInWithEmailAndPassword(String email, String password) async {
-    await _auth.signInWithEmailAndPassword(email: email, password: password);
+    try {
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(_mapFirebaseAuthError(e.code));
+    }
   }
 
   @override
@@ -60,7 +63,7 @@ class AuthRepoImpl implements AuthRepository {
       );
       await _auth.signInWithCredential(credential);
     } on FirebaseAuthException catch (e) {
-      throw _mapFirebaseAuthException(e);
+      throw _mapFirebaseAuthError(e.code);
     } catch (e) {
       throw AuthException(e.toString());
     }
@@ -83,26 +86,22 @@ class AuthRepoImpl implements AuthRepository {
         password: password,
       );
     } on FirebaseAuthException catch (e) {
-      throw _mapFirebaseAuthException(e);
+      throw _mapFirebaseAuthError(e.code);
     }
   }
 
-  AuthException _mapFirebaseAuthException(FirebaseAuthException e) {
-    switch (e.code) {
+  String _mapFirebaseAuthError(String code) {
+    switch (code) {
       case 'user-not-found':
-        return AuthException('User not found');
+        return 'No user found with this email';
       case 'wrong-password':
-        return AuthException('Wrong password');
-      case 'email-already-in-use':
-        return AuthException('Email already in use');
+        return 'Wrong password';
       case 'invalid-email':
-        return AuthException('Invalid email');
-      case 'operation-not-allowed':
-        return AuthException('Operation not allowed');
-      case 'weak-password':
-        return AuthException('Weak password');
+        return 'Invalid email format';
+      case 'user-disabled':
+        return 'This account has been disabled';
       default:
-        return AuthException(e.message ?? 'Authentication error');
+        return 'Authentication failed';
     }
   }
 }
