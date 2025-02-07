@@ -17,15 +17,16 @@ class TodoItem extends StatefulWidget {
 class _TodoItemState extends State<TodoItem> {
   @override
   Widget build(BuildContext context) {
-    // We should use BlocBuilder here to react to state changes
     return BlocBuilder<TodoBloc, TodoState>(
       builder: (context, state) {
         if (state is TodoLoaded) {
-          // Get the latest version of this todo from state
           final currentTodo = state.todos.firstWhere(
             (t) => t.id == widget.todo.id,
             orElse: () => widget.todo,
           );
+
+          final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+          final textColor = isDarkTheme ? Colors.white : Colors.black;
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -34,7 +35,7 @@ class _TodoItemState extends State<TodoItem> {
               child: Slidable(
                 key: ValueKey(currentTodo.id),
                 endActionPane: ActionPane(
-                  motion: ScrollMotion(),
+                  motion: const ScrollMotion(),
                   children: [
                     SlidableAction(
                       borderRadius: BorderRadius.circular(8),
@@ -42,9 +43,9 @@ class _TodoItemState extends State<TodoItem> {
                       onPressed: (context) async {
                         final bloc = context.read<TodoBloc>();
                         final confirmed = await showConfirmDialog(
-                            context: context,
-                            content:
-                                'Are you sure you want to delete this todo?');
+                          context: context,
+                          content: 'Are you sure you want to delete this todo?',
+                        );
                         if (confirmed == true) {
                           bloc.add(DeleteTodo(currentTodo.id));
                         }
@@ -60,7 +61,7 @@ class _TodoItemState extends State<TodoItem> {
                   curve: Curves.easeInOut,
                   decoration: BoxDecoration(
                     color: currentTodo.isCompleted
-                        ? Colors.grey[100]
+                        ? Colors.grey[800]
                         : Theme.of(context).cardColor,
                     border: Border.all(
                       color: Colors.grey[200]!,
@@ -71,8 +72,12 @@ class _TodoItemState extends State<TodoItem> {
                   child: ListTile(
                     title: Text(
                       currentTodo.title,
+                      style: TextStyle(color: textColor),
                     ),
-                    subtitle: Text(currentTodo.description),
+                    subtitle: Text(
+                      currentTodo.description,
+                      style: TextStyle(color: textColor),
+                    ),
                     leading: AnimatedScale(
                       duration: const Duration(milliseconds: 200),
                       scale: currentTodo.isCompleted ? 1.1 : 1,
@@ -107,19 +112,28 @@ class _TodoItemState extends State<TodoItem> {
               orElse: () => todo,
             );
 
+            final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+            final textColor = isDarkTheme ? Colors.white : Colors.black;
+
             return Column(
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
                     'Subtasks',
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(color: textColor),
                   ),
                 ),
                 Expanded(
                   child: currentTodo.subtasks.isEmpty
                       ? Center(
-                          child: Text('No subtasks yet'),
+                          child: Text(
+                            'No subtasks yet',
+                            style: TextStyle(color: textColor),
+                          ),
                         )
                       : AnimatedListView(
                           enterTransition: [
@@ -136,6 +150,7 @@ class _TodoItemState extends State<TodoItem> {
                               value: subtask.isCompleted,
                               title: Text(
                                 subtask.title,
+                                style: TextStyle(color: textColor),
                               ),
                               onChanged: (_) => context.read<TodoBloc>().add(
                                     ToggleSubtask(

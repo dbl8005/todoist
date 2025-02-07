@@ -3,6 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todoist/core/configs/theme/theme.dart';
+import 'package:todoist/core/configs/theme/theme_cubit.dart';
 import 'package:todoist/features/auth/data/repositories/auth_repo_impl.dart';
 import 'package:todoist/features/auth/domain/repo/auth_repository.dart';
 import 'package:todoist/features/auth/presentation/bloc/auth_bloc.dart';
@@ -13,52 +16,56 @@ import 'package:todoist/features/todo/presentation/bloc/todo_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/constants/firebase_options.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const MyApp());
+  final prefs = await SharedPreferences.getInstance();
+  final todoRepository = TodoRepositoryImpl();
+  final authRepository = AuthRepoImpl(
+    auth: FirebaseAuth.instance,
+    googleSignIn: GoogleSignIn(),
+  );
+
+  // Create AuthBloc instance first
+  final authBloc = AuthBloc(repository: authRepository)..add(CheckAuthStatus());
+
+  runApp(MultiRepositoryProvider(
+    providers: [
+      RepositoryProvider.value(value: todoRepository),
+      RepositoryProvider.value(value: authRepository),
+    ],
+    child: MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => ThemeCubit(prefs)),
+        BlocProvider.value(value: authBloc), // Use value provider instead
+        BlocProvider<TodoBloc>(
+          create: (context) => TodoBloc(repository: todoRepository),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  ));
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MultiRepositoryProvider(
-        providers: [
-          RepositoryProvider<AuthRepository>(
-              create: (context) => AuthRepoImpl(
-                    auth: FirebaseAuth.instance,
-                    googleSignIn: GoogleSignIn(),
-                  )),
-          RepositoryProvider<TodoRepository>(
-            create: (context) => TodoRepositoryImpl(
-              firestore: FirebaseFirestore.instance,
-              auth: FirebaseAuth.instance,
-            ),
-          ),
-        ],
-        child: MultiBlocProvider(
-          providers: [
-            BlocProvider(
-              create: (context) =>
-                  AuthBloc(repository: context.read<AuthRepository>())
-                    ..add(CheckAuthStatus()),
-            ),
-            BlocProvider<TodoBloc>(
-              create: (context) => TodoBloc(
-                repository: context.read<TodoRepository>(),
-              ),
-            ),
-          ],
-          child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: AuthGate(),
-          ),
-        ));
+    return BlocBuilder<ThemeCubit, bool>(
+      builder: (context, isDark) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+          home: const AuthGate(),
+        );
+      },
+    );
   }
 }

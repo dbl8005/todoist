@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todoist/core/configs/theme/theme_cubit.dart';
 import 'package:todoist/core/utils/helpers/dialogs/confirm_dialog.dart';
 import 'package:todoist/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:todoist/features/todo/domain/repositories/todo_repository.dart';
@@ -14,11 +15,17 @@ class TodosPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // Add LoadTodos event when page is built
     context.read<TodoBloc>().add(LoadTodos());
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Todos'),
         actions: [
+          BlocBuilder<ThemeCubit, bool>(
+            // Only rebuild the theme icon
+            builder: (context, isDark) => IconButton(
+              icon: Icon(isDark ? Icons.dark_mode_outlined : Icons.sunny),
+              onPressed: () => context.read<ThemeCubit>().toggleTheme(),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
