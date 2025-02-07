@@ -146,6 +146,7 @@ class _TodoItemState extends State<TodoItem> {
                           itemBuilder: (context, index) {
                             final subtask = currentTodo.subtasks[index];
                             return CheckboxListTile(
+                              activeColor: Colors.green,
                               key: ValueKey(subtask.id),
                               value: subtask.isCompleted,
                               title: Text(
