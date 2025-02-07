@@ -50,7 +50,6 @@ class TodoRepositoryImpl implements TodoRepository {
         await subtaskRef.update({'id': subtaskRef.id});
       }
     } catch (e) {
-      print('Error adding todo: $e');
       rethrow;
     }
   }
@@ -90,7 +89,7 @@ class TodoRepositoryImpl implements TodoRepository {
   @override
   Future<void> toggleSubtask(String todoId, String subtaskId) async {
     try {
-      print('Toggling subtask: $todoId, $subtaskId'); // Debug
+      // Debug
       final subtaskRef = _getTodosCollection()
           .doc(todoId)
           .collection('subtasks')
@@ -98,14 +97,14 @@ class TodoRepositoryImpl implements TodoRepository {
 
       await _firestore.runTransaction((transaction) async {
         final subtaskSnap = await transaction.get(subtaskRef);
-        print('Current subtask state: ${subtaskSnap.data()}'); // Debug
+        // Debug
         if (!subtaskSnap.exists) throw SubtaskNotFoundException();
 
         transaction.update(subtaskRef,
             {'isCompleted': !(subtaskSnap.data()?['isCompleted'] ?? false)});
       });
     } catch (e) {
-      print('Toggle subtask error: $e'); // Debug
+      // Debug
       rethrow;
     }
   }

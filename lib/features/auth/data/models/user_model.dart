@@ -3,14 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
 class UserModel extends UserEntity {
   UserModel({
-    required String id,
-    String? email,
-    required bool isEmailVerified,
-  }) : super(
-          id: id,
-          email: email,
-          isEmailVerified: isEmailVerified,
-        );
+    required super.id,
+    super.email,
+    required super.isEmailVerified,
+  });
   factory UserModel.fromFirebaseUser(firebase_auth.User firebaseUser) {
     return UserModel(
       id: firebaseUser.uid,

@@ -55,8 +55,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     const InputDecoration(labelText: 'Confirm Password'),
                 obscureText: true,
                 validator: (value) {
-                  if (value?.isEmpty ?? true)
+                  if (value?.isEmpty ?? true) {
                     return 'Confirm password is required';
+                  }
                   if (value != _passwordController.text) {
                     return 'Passwords do not match';
                   }

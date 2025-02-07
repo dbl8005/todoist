@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:todoist/core/utils/helpers/dialogs/confirm_dialog.dart';
 import 'package:todoist/features/auth/data/repositories/auth_repo_impl.dart';
 import 'package:todoist/features/auth/domain/entities/user_entity.dart';
 import 'package:todoist/features/auth/domain/repo/auth_repository.dart';
@@ -43,11 +42,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           event.password,
         );
       } on AuthException catch (e) {
-        print('Auth Error Caught: ${e.message}'); // Debug print
+        // Debug print
         emit(AuthError(e.message));
         emit(Unauthenticated());
       } catch (e) {
-        print('Other Error: $e'); // Debug print
+        // Debug print
         emit(AuthError('An unexpected error occurred'));
         emit(Unauthenticated());
       }

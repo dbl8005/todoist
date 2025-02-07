@@ -42,6 +42,7 @@ class AuthRepoImpl implements AuthRepository {
     return _auth.currentUser != null;
   }
 
+  @override
   Future<void> signInWithEmailAndPassword(String email, String password) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);

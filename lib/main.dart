@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,11 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todoist/core/configs/theme/theme.dart';
 import 'package:todoist/core/configs/theme/theme_cubit.dart';
 import 'package:todoist/features/auth/data/repositories/auth_repo_impl.dart';
-import 'package:todoist/features/auth/domain/repo/auth_repository.dart';
 import 'package:todoist/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:todoist/features/auth/presentation/pages/auth_gate.dart';
 import 'package:todoist/features/todo/data/repositories/todo_repository_impl.dart';
-import 'package:todoist/features/todo/domain/repositories/todo_repository.dart';
 import 'package:todoist/features/todo/presentation/bloc/todo_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/constants/firebase_options.dart';

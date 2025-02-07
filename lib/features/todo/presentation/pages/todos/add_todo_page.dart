@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todoist/features/todo/data/models/subtask_model.dart';
 import 'package:todoist/features/todo/data/models/todo_model.dart';
-import 'package:todoist/features/todo/domain/entities/subtask_entity.dart';
-import 'package:todoist/features/todo/domain/entities/todo_entity.dart';
 import 'package:todoist/features/todo/presentation/bloc/todo_bloc.dart';
 
 class AddTodoPage extends StatefulWidget {
@@ -110,7 +108,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
             TextButton.icon(
               onPressed: _addSubtaskField,
               icon: const Icon(Icons.add),

@@ -2,14 +2,10 @@ import 'package:todoist/features/todo/domain/entities/subtask_entity.dart';
 
 class SubtaskModel extends SubtaskEntity {
   SubtaskModel({
-    required String id,
-    required String title,
-    required bool isCompleted,
-  }) : super(
-          id: id,
-          title: title,
-          isCompleted: isCompleted,
-        );
+    required super.id,
+    required super.title,
+    required super.isCompleted,
+  });
 
   // Create copy with optional changes
   SubtaskModel copyWith({

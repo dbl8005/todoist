@@ -10,7 +10,6 @@ class AppTheme {
       primary: Colors.blue.shade700,
       secondary: Colors.blueGrey,
       surface: Colors.white,
-      background: Colors.grey.shade50,
     ),
     cardTheme: CardTheme(
       color: Colors.white,
@@ -29,7 +28,6 @@ class AppTheme {
       primary: Colors.blue.shade400,
       secondary: Colors.blueGrey.shade400,
       surface: Colors.grey.shade900,
-      background: Colors.black,
     ),
     cardTheme: CardTheme(
       color: Colors.grey.shade900,

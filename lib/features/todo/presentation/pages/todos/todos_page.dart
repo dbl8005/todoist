@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todoist/core/configs/theme/theme_cubit.dart';
 import 'package:todoist/core/utils/helpers/dialogs/confirm_dialog.dart';
 import 'package:todoist/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:todoist/features/todo/domain/repositories/todo_repository.dart';
 import 'package:todoist/features/todo/presentation/pages/todos/add_todo_page.dart';
 import 'package:todoist/features/todo/presentation/bloc/todo_bloc.dart';
 import 'package:todoist/features/todo/presentation/widgets/todos/todo_list.dart';
@@ -28,15 +27,13 @@ class TodosPage extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              showConfirmDialog(
-                      context: context,
-                      content: 'Are you sure you want to sign out?')
-                  .then((confirmed) {
-                if (confirmed == true) {
-                  context.read<AuthBloc>().add(SignOut());
-                }
-              });
+            onPressed: () async {
+              final confirmed = await showConfirmDialog(
+                  context: context,
+                  content: 'Are you sure you want to sign out?');
+              if (confirmed == true && context.mounted) {
+                context.read<AuthBloc>().add(SignOut());
+              }
             },
           ),
         ],

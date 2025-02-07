@@ -125,9 +125,17 @@ flutter_native_splash:
   color: "#ffffff"
   color_dark: "#121212"
   image: assets/splash/splash.png
-  
+  image_dark: assets/splash/splash.png
   
   android_12:
     image: assets/splash/splash.png
     icon_background_color: "#ffffff"
     icon_background_color_dark: "#121212"
+  
+  android: true
+  ios: true
+  web: false
+  
+  fullscreen: false
+  android_gravity: center
+  ios_content_mode: scaleAspectFit  # This will maintain aspect ratio without cropping

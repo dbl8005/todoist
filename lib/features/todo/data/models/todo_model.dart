@@ -3,18 +3,12 @@ import 'package:todoist/features/todo/data/models/subtask_model.dart';
 
 class TodoModel extends TodoEntity {
   TodoModel({
-    required String id,
-    required String title,
-    required String description,
-    required List<SubtaskModel> subtasks,
-    required bool isCompleted,
-  }) : super(
-          id: id,
-          title: title,
-          description: description,
-          subtasks: subtasks,
-          isCompleted: isCompleted,
-        );
+    required super.id,
+    required super.title,
+    required super.description,
+    required List<SubtaskModel> super.subtasks,
+    required super.isCompleted,
+  });
 
   TodoModel copyWith({
     String? id,
