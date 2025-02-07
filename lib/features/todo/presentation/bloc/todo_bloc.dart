@@ -50,10 +50,28 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   }
 
   Future<void> _onToggleTodo(ToggleTodo event, Emitter<TodoState> emit) async {
-    try {
-      await _repository.toggleTodo(event.id);
-    } on TodoException catch (e) {
-      emit(TodoError(message: e.message));
+    if (state is TodoLoaded) {
+      final currentState = state as TodoLoaded;
+
+      // Optimistically update the state
+      final updatedTodos = currentState.todos.map((todo) {
+        if (todo.id == event.id) {
+          return (todo as TodoModel).copyWith(isCompleted: !todo.isCompleted);
+        }
+        return todo;
+      }).toList();
+
+      // Emit optimistic update immediately
+      emit(TodoLoaded(todos: updatedTodos));
+
+      // Perform actual update
+      try {
+        await _repository.toggleTodo(event.id);
+      } catch (e) {
+        // Revert on error
+        emit(TodoLoaded(todos: currentState.todos));
+        emit(TodoError(message: 'Failed to update todo'));
+      }
     }
   }
 
