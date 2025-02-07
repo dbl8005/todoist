@@ -1,7 +1,10 @@
+import 'package:animated_reorderable_list/animated_reorderable_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todoist/core/utils/helpers/dialogs/confirm_dialog.dart';
 import 'package:todoist/features/todo/domain/entities/todo_entity.dart';
 import 'package:todoist/features/todo/presentation/bloc/todo_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class TodoItem extends StatefulWidget {
   final TodoEntity todo;
@@ -24,31 +27,67 @@ class _TodoItemState extends State<TodoItem> {
             orElse: () => widget.todo,
           );
 
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: ListTile(
-              title: Text(
-                currentTodo.title,
-                style: TextStyle(
-                  decoration: currentTodo.isCompleted
-                      ? TextDecoration.lineThrough
-                      : null,
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Opacity(
+              opacity: currentTodo.isCompleted ? 0.5 : 1,
+              child: Slidable(
+                key: ValueKey(currentTodo.id),
+                endActionPane: ActionPane(
+                  motion: ScrollMotion(),
+                  children: [
+                    SlidableAction(
+                      borderRadius: BorderRadius.circular(8),
+                      backgroundColor: Colors.red,
+                      onPressed: (context) async {
+                        final bloc = context.read<TodoBloc>();
+                        final confirmed = await showConfirmDialog(
+                            context: context,
+                            content:
+                                'Are you sure you want to delete this todo?');
+                        if (confirmed == true) {
+                          bloc.add(DeleteTodo(currentTodo.id));
+                        }
+                      },
+                      icon: Icons.delete,
+                      label: 'Delete',
+                      foregroundColor: Colors.white,
+                    ),
+                  ],
+                ),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  decoration: BoxDecoration(
+                    color: currentTodo.isCompleted
+                        ? Colors.grey[100]
+                        : Theme.of(context).cardColor,
+                    border: Border.all(
+                      color: Colors.grey[200]!,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ListTile(
+                    title: Text(
+                      currentTodo.title,
+                    ),
+                    subtitle: Text(currentTodo.description),
+                    leading: AnimatedScale(
+                      duration: const Duration(milliseconds: 200),
+                      scale: currentTodo.isCompleted ? 1.1 : 1,
+                      child: Checkbox(
+                        activeColor: Colors.green,
+                        value: currentTodo.isCompleted,
+                        onChanged: (_) => context.read<TodoBloc>().add(
+                              ToggleTodo(currentTodo.id),
+                            ),
+                      ),
+                    ),
+                    onTap: () => _showSubtasks(context, currentTodo),
+                  ),
                 ),
               ),
-              subtitle: Text(currentTodo.description),
-              leading: Checkbox(
-                value: currentTodo.isCompleted,
-                onChanged: (_) => context.read<TodoBloc>().add(
-                      ToggleTodo(currentTodo.id),
-                    ),
-              ),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () => context.read<TodoBloc>().add(
-                      DeleteTodo(currentTodo.id),
-                    ),
-              ),
-              onTap: () => _showSubtasks(context, currentTodo),
             ),
           );
         }
@@ -78,23 +117,22 @@ class _TodoItemState extends State<TodoItem> {
                   ),
                 ),
                 Expanded(
-                  child: currentTodo.subtasks.length == 0
+                  child: currentTodo.subtasks.isEmpty
                       ? Center(
                           child: Text('No subtasks yet'),
                         )
-                      : ListView.builder(
-                          itemCount: currentTodo.subtasks.length,
+                      : AnimatedListView(
+                          enterTransition: [
+                            FadeIn(duration: const Duration(milliseconds: 200)),
+                            SlideInLeft(
+                                duration: const Duration(milliseconds: 200))
+                          ],
+                          isSameItem: (a, b) => a.id == b.id,
+                          items: currentTodo.subtasks,
                           itemBuilder: (context, index) {
-                            final sortedSubtasks = [...currentTodo.subtasks]
-                              ..sort(
-                                (a, b) => a.isCompleted == b.isCompleted
-                                    ? 0
-                                    : a.isCompleted
-                                        ? 1
-                                        : -1,
-                              );
-                            final subtask = sortedSubtasks[index];
+                            final subtask = currentTodo.subtasks[index];
                             return CheckboxListTile(
+                              key: ValueKey(subtask.id),
                               value: subtask.isCompleted,
                               title: Text(
                                 subtask.title,
